@@ -13,7 +13,7 @@ public class HelloController {
     @GetMapping("/")
     public Map<String, Object> hello() {
         Map<String, Object> response = new HashMap<>();
-        response.put("message", "Hello from Azure Container Registry!");
+        response.put("message", "hello,this is home page!");
         response.put("timestamp", LocalDateTime.now());
         response.put("status", "success");
         return response;
