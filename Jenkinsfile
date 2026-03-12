@@ -4,7 +4,7 @@ pipeline {
     parameters {
         choice(
             name: 'ENVIRONMENT',
-            choices: ['dev', 'staging', 'prod'],
+            choices: ['dev', 'stage', 'prod'],
             description: '选择要部署的环境'
         )
     }
@@ -26,9 +26,9 @@ pipeline {
         stage('Checkout') {
             steps {
                 // 从 GitHub 拉取代码（需要提前配置凭据）
-                git branch: 'main',
-                    url: 'https://github.com/你的组织/你的仓库.git',
-                    credentialsId: 'github-token'
+                git branch: 'feature/kerwin2',
+                    url: 'https://github.com/2551390302/Devops-demo.git',
+                    credentialsId: 'github-devops-terraform'
             }
         }
 
@@ -36,7 +36,7 @@ pipeline {
             steps {
                 script {
                     // 根据参数切换到 environments/${ENVIRONMENT}
-                    dir("environments/${params.ENVIRONMENT}") {
+                    dir("Terraform/environments/${params.ENVIRONMENT}") {
                         // 后续 stage 会在此目录下执行
                         // 但 dir 的作用域有限，所以需要在每个 stage 中重新进入
                         // 我们可以在每个 Terraform stage 中显式使用 dir
@@ -47,7 +47,7 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                dir("environments/${params.ENVIRONMENT}") {
+                dir("Terraform/environments/${params.ENVIRONMENT}") {
                     sh 'terraform init'
                 }
             }
@@ -55,7 +55,7 @@ pipeline {
 
         stage('Terraform Validate') {
             steps {
-                dir("environments/${params.ENVIRONMENT}") {
+                dir("Terraform/environments/${params.ENVIRONMENT}") {
                     sh 'terraform fmt -check'
                     sh 'terraform validate'
                 }
@@ -64,7 +64,7 @@ pipeline {
 
         stage('Terraform Plan') {
             steps {
-                dir("environments/${params.ENVIRONMENT}") {
+                dir("Terraform/environments/${params.ENVIRONMENT}") {
                     // 生成计划文件，并保存
                     sh 'terraform plan -out=tfplan'
                 }
@@ -72,7 +72,7 @@ pipeline {
             post {
                 success {
                     // 归档计划文件，方便查看
-                    archiveArtifacts artifacts: "environments/${params.ENVIRONMENT}/tfplan"
+                    archiveArtifacts artifacts: "Terraform/environments/${params.ENVIRONMENT}/tfplan"
                 }
             }
         }
@@ -89,7 +89,7 @@ pipeline {
 
         stage('Terraform Apply') {
             steps {
-                dir("environments/${params.ENVIRONMENT}") {
+                dir("Terraform/environments/${params.ENVIRONMENT}") {
                     sh 'terraform apply -auto-approve tfplan'
                 }
             }
@@ -97,7 +97,7 @@ pipeline {
                 success {
                     // 可选：获取输出（如 kubeconfig）并保存
                     script {
-                        dir("environments/${params.ENVIRONMENT}") {
+                        dir("Terraform/environments/${params.ENVIRONMENT}") {
                             // 如果存在 kubeconfig 输出，可以写入文件供后续阶段使用
                             sh 'terraform output -raw aks_kubeconfig > kubeconfig || true'
                         }
