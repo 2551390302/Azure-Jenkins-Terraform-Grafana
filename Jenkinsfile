@@ -7,6 +7,7 @@ pipeline {
             choices: ['dev', 'stage', 'prod'],
             description: '选择要部署的环境'
         )
+        terraform_path: '/usr/local/bin/'
     }
 
     environment {
@@ -48,7 +49,7 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 dir("Terraform/environments/${params.ENVIRONMENT}") {
-                    sh 'terraform init'
+                    sh '${parameters.terraform_path}terraform init'
                 }
             }
         }
@@ -56,8 +57,8 @@ pipeline {
         stage('Terraform Validate') {
             steps {
                 dir("Terraform/environments/${params.ENVIRONMENT}") {
-                    sh 'terraform fmt -check'
-                    sh 'terraform validate'
+                    sh 'parameters.terraform_path}terraform fmt -check'
+                    sh 'parameters.terraform_path}terraform validate'
                 }
             }
         }
@@ -66,7 +67,7 @@ pipeline {
             steps {
                 dir("Terraform/environments/${params.ENVIRONMENT}") {
                     // 生成计划文件，并保存
-                    sh 'terraform plan -out=tfplan'
+                    sh 'parameters.terraform_path}terraform plan -out=tfplan'
                 }
             }
             post {
@@ -90,7 +91,7 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 dir("Terraform/environments/${params.ENVIRONMENT}") {
-                    sh 'terraform apply -auto-approve tfplan'
+                    sh 'parameters.terraform_path}terraform apply -auto-approve tfplan'
                 }
             }
             post {
@@ -99,7 +100,7 @@ pipeline {
                     script {
                         dir("Terraform/environments/${params.ENVIRONMENT}") {
                             // 如果存在 kubeconfig 输出，可以写入文件供后续阶段使用
-                            sh 'terraform output -raw aks_kubeconfig > kubeconfig || true'
+                            sh 'parameters.terraform_path}terraform output -raw aks_kubeconfig > kubeconfig || true'
                         }
                         // 使用 stash 保留 kubeconfig 供后续部署任务
                         stash name: 'kubeconfig', includes: "environments/${params.ENVIRONMENT}/kubeconfig", allowEmpty: true
