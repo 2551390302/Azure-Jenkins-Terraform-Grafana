@@ -1,1 +1,1 @@
-main_subscription_id = "kk02"
+main_subscription_id = "5143bb9c-9dc6-46f8-b72a-e9cec9e8192a"
