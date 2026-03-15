@@ -7,7 +7,7 @@ variable "resource_group_name" {
 variable "location" {
   description = "Azure 区域（如果创建新 VNet 则需要）"
   type        = string
-  default     = null   # 当使用现有 VNet 时可忽略
+  default     = null # 当使用现有 VNet 时可忽略
 }
 
 variable "vnet_name" {

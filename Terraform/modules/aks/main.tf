@@ -5,10 +5,10 @@ resource "azurerm_kubernetes_cluster" "this" {
   dns_prefix          = var.dns_prefix
 
   default_node_pool {
-    name       = "default"
-    node_count = var.node_count
-    vm_size    = var.vm_size
-    vnet_subnet_id = var.vnet_subnet_id   # 引用网络模块的输出
+    name           = "default"
+    node_count     = var.node_count
+    vm_size        = var.vm_size
+    vnet_subnet_id = var.vnet_subnet_id # 引用网络模块的输出
   }
 
   identity {
