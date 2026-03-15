@@ -1,1 +1,1 @@
-variable "main_subscription_id" {}
+variable "main_subscription_id" {kk02}
