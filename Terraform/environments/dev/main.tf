@@ -20,6 +20,7 @@ provider "azurerm" {
 resource "time_static" "this" {} # 新增资源
 
 locals {
+  resource_group_name = "rg-kk02-eas-devops01"
   common_tags = {
     ApplicationOwner = "Kerwin Li" # 可改为变量
     ApplicationName  = "devops-demo"
@@ -33,7 +34,7 @@ locals {
 module "networking" {
   source = "../../modules/networking"
 
-  resource_group_name = "rg-kk02-eas-devops01"
+  resource_group_name = local.resource_group_name
   location            = "eastasia"               # 指定区域
   existing_vnet_name  = "vnet-kk02-eas-devops01" # 新 VNet 名称
   #  address_space       = ["172.16.0.0/16"]          # VNet 地址空间
@@ -47,13 +48,15 @@ module "networking" {
 module "aks" {
   source = "../../modules/aks"
 
-  resource_group_name = "rg-kk02-eas-devops01"
+  resource_group_name = local.resource_group_name
   location            = "eastasia"
   cluster_name        = "aks-dev-devops01"
   dns_prefix          = "aksdevdevops01"
 
   # 使用最便宜的 VM 大小（B 系列，开发/测试适用）
   vm_size = "Standard_B2s" # 2 vCPU, 4 GB 内存，可运行少量容器
+  # 关键修复：显式禁用可用区，让 B2s 能正常部署
+  availability_zones = []
 
   # 子网 ID 必须是完整的 Azure 资源 ID，而不是仅 VNet 名称！
   # 示例：/subscriptions/xxx/resourceGroups/xxx/providers/Microsoft.Network/virtualNetworks/vnet-name/subnets/subnet-name
