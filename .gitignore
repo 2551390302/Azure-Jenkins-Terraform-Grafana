@@ -29,6 +29,7 @@ replay_pid*
 .terraform/
 *.tfplan
 *.tfvars.json
+*.tfvars
 override.tf
 override.tf.json
 *_override.tf

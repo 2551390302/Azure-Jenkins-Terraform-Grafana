@@ -1,1 +1,4 @@
-variable "main_subscription_id" {kk02}
+variable "main_subscription_id" {
+  description = "Azure Subscription ID"
+  type        = string
+}
