@@ -1,7 +1,6 @@
 provider "azurerm" {
   features {}
   subscription_id = var.main_subscription_id
-  alias           = "main"
 }
 
 
