@@ -47,7 +47,7 @@ module "networking" {
 module "aks" {
   source = "../../modules/aks"
 
-  resource_group_name = "rg-kk01-eas-second-kerwin02"
+  resource_group_name = "rg-kk02-eas-devops01"
   location            = "eastasia"
   cluster_name        = "aks-dev-devops01"
   dns_prefix          = "aksdevdevops01"
