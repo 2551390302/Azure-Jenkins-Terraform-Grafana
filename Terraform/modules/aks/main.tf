@@ -11,7 +11,7 @@ resource "azurerm_kubernetes_cluster" "this" {
 
     # 注意：这里是关键改动！
     # 将 enable_auto_scaling 改为 auto_scaling_enabled [citation:3][citation:8]
-    auto_scaling_enabled = var.enable_auto_scaling
+    enable_auto_scaling = var.enable_auto_scaling
 
     # 当启用自动缩放时，必须设置 min_count 和 max_count，但不能设置 node_count
     # 所以我们将 min_count 和 max_count 的值从变量中读取

@@ -40,7 +40,7 @@ module "networking" {
   aks_subnet_prefix = ["172.16.1.0/24"] # 子网地址前缀
   create_vnet       = false             # 创建新 VNet
 
-  tags = locals.common_tags
+  tags = local.common_tags
 }
 
 # 调用 AKS 模块
@@ -67,7 +67,7 @@ module "aks" {
   # 限制每个节点的 Pod 数量
   max_pods = 50 # 每个节点最多运行 50 个 Pod（默认通常为 30，可根据需求降低）
 
-  tags = merge(locals.common_tags, {
+  tags = merge(local.common_tags, {
     ServerOwner = "Kerwin Li"
   })
 }

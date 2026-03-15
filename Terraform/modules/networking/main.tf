@@ -15,7 +15,6 @@ data "azurerm_virtual_network" "existing" {
 
   name                = var.existing_vnet_name
   resource_group_name = var.resource_group_name
-  tags                = var.tags
 }
 
 # 本地变量，简化后续对 VNet 名称的引用
@@ -29,5 +28,4 @@ resource "azurerm_subnet" "aks" {
   resource_group_name  = var.resource_group_name
   virtual_network_name = local.vnet_name
   address_prefixes     = var.aks_subnet_prefix
-  tags                 = var.tags
 }
