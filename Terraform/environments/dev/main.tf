@@ -4,7 +4,7 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 3.0"
     }
-    time = {                                  # 新增 time provider
+    time = { # 新增 time provider
       source  = "hashicorp/time"
       version = "~> 0.9"
     }
@@ -17,14 +17,14 @@ provider "azurerm" {
 }
 
 # 固定时间资源
-resource "time_static" "this" {}                # 新增资源
+resource "time_static" "this" {} # 新增资源
 
 locals {
   common_tags = {
-    ApplicationOwner     = "Kerwin Li"                  # 可改为变量
-    ApplicationName = "devops-demo"
-    Environment     = "dev"
-    CreatedAt       = formatdate("YYYY-MM-DD hh:mm:ss", time_static.this.rfc3339)
+    ApplicationOwner = "Kerwin Li" # 可改为变量
+    ApplicationName  = "devops-demo"
+    Environment      = "dev"
+    CreatedAt        = formatdate("YYYY-MM-DD hh:mm:ss", time_static.this.rfc3339)
   }
 }
 
@@ -36,9 +36,9 @@ module "networking" {
   resource_group_name = "rg-kk02-eas-devops01"
   location            = "eastasia"               # 指定区域
   vnet_name           = "vnet-kk02-eas-devops01" # 新 VNet 名称
-#  address_space       = ["172.16.0.0/16"]          # VNet 地址空间
-  aks_subnet_prefix   = ["172.16.1.0/24"]          # 子网地址前缀
-  create_vnet         = false                     # 创建新 VNet
+  #  address_space       = ["172.16.0.0/16"]          # VNet 地址空间
+  aks_subnet_prefix = ["172.16.1.0/24"] # 子网地址前缀
+  create_vnet       = false             # 创建新 VNet
 
   tags = locals.common_tags
 }
@@ -67,7 +67,7 @@ module "aks" {
   # 限制每个节点的 Pod 数量
   max_pods = 50 # 每个节点最多运行 50 个 Pod（默认通常为 30，可根据需求降低）
 
-  tags = merge(locals.common_tags,{
-      ServerOwner = "Kerwin Li"
-      })
+  tags = merge(locals.common_tags, {
+    ServerOwner = "Kerwin Li"
+  })
 }
