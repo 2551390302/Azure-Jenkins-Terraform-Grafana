@@ -8,15 +8,14 @@ provider "azurerm" {
 module "networking" {
   source = "../../modules/networking"
 
-  resource_group_name = "rg-kk01-eas-second-kerwin02" # VNet 所在的资源组
-  existing_vnet_name  = "vnet-kk02-eas-devops01"      # 现有 VNet 名称
-  aks_subnet_prefix   = ["10.0.1.0/24"]               # 新子网的地址范围
-  create_vnet         = false                         # 关键：不创建新 VNet
+  resource_group_name = "rg-kk02-eas-devops01"
+  location            = "eastasia"               # 指定区域
+  vnet_name           = "vnet-kk02-eas-devops01" # 新 VNet 名称
+  address_space       = ["10.0.0.0/16"]          # VNet 地址空间
+  aks_subnet_prefix   = ["10.0.1.0/24"]          # 子网地址前缀
+  create_vnet         = true                     # 创建新 VNet
 
-  # 以下参数在 create_vnet = false 时不再需要，但模块允许默认值，可忽略
-  # location            = null
-  # vnet_name           = null
-  # address_space       = null
+  # existing_vnet_name 已不再需要，可删除或保留注释
 }
 
 # 调用 AKS 模块
