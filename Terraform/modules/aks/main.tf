@@ -24,7 +24,7 @@ resource "azurerm_kubernetes_cluster" "this" {
     max_pods = var.max_pods
 
     # 添加可用区配置
-    availability_zones = var.availability_zones
+    zones = var.zones
   }
 
   identity {

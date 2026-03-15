@@ -65,8 +65,8 @@ variable "tags" {
   default     = {}
 }
 
-variable "availability_zones" {
+variable "zones" {
   description = "可用区列表，例如 [\"1\", \"2\", \"3\"]；设置为 [] 可禁用可用区"
   type        = list(string)
-  default     = null # null 表示由 Azure 自动决定（通常启用可用区）
+  default     = null
 }
