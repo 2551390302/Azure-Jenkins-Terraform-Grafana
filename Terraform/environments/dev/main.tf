@@ -34,7 +34,7 @@ module "aks" {
 
   # 子网 ID 必须是完整的 Azure 资源 ID，而不是仅 VNet 名称！
   # 示例：/subscriptions/xxx/resourceGroups/xxx/providers/Microsoft.Network/virtualNetworks/vnet-name/subnets/subnet-name
-  vnet_subnet_id = "/subscriptions/5143bb9c-9dc6-46f8-b72a-e9cec9e8192a/resourceGroups/rg-kk02-eas-devops01/providers/Microsoft.Network/virtualNetworks/vnet-kk02-eas-devops01"
+  vnet_subnet_id = module.networking.aks_subnet_id # 引用网络模块输出的子网 ID
 
   # 启用自动缩放
   enable_auto_scaling = true # 允许节点池动态扩缩容
