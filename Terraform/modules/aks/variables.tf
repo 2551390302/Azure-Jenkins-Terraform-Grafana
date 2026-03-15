@@ -77,3 +77,9 @@ variable "os_disk_size_gb" {
   type        = number
   default     = 30
 }
+
+variable "kubernetes_version" {
+  description = "Kubernetes 版本，例如 1.29.2"
+  type        = string
+  default     = null # null 表示使用 AKS 默认版本
+}

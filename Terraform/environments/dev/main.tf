@@ -52,9 +52,10 @@ module "aks" {
   location            = "eastasia"
   cluster_name        = "aks-dev-devops01"
   dns_prefix          = "aksdevdevops01"
+  kubernetes_version  = "1.33.7"
 
   # 使用最便宜的 VM 大小（B 系列，开发/测试适用）
-  vm_size         = "Standard_DS1_v2" # 2 vCPU, 4 GB 内存，可运行少量容器
+  vm_size         = "Standard_B2pls_v2" # 2 vCPU, 4 GB 内存，可运行少量容器
   os_disk_size_gb = 128
 
   # 子网 ID 必须是完整的 Azure 资源 ID，而不是仅 VNet 名称！
