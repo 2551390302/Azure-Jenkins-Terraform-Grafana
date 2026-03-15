@@ -55,8 +55,6 @@ module "aks" {
 
   # 使用最便宜的 VM 大小（B 系列，开发/测试适用）
   vm_size = "Standard_B2s" # 2 vCPU, 4 GB 内存，可运行少量容器
-  # 关键修复：显式禁用可用区，让 B2s 能正常部署
-  availability_zones = []
 
   # 子网 ID 必须是完整的 Azure 资源 ID，而不是仅 VNet 名称！
   # 示例：/subscriptions/xxx/resourceGroups/xxx/providers/Microsoft.Network/virtualNetworks/vnet-name/subnets/subnet-name
@@ -69,6 +67,8 @@ module "aks" {
 
   # 限制每个节点的 Pod 数量
   max_pods = 50 # 每个节点最多运行 50 个 Pod（默认通常为 30，可根据需求降低）
+
+  availability_zones = []
 
   tags = merge(local.common_tags, {
     ServerOwner = "Kerwin Li"
