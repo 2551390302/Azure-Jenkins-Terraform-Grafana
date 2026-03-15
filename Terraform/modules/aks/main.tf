@@ -6,16 +6,21 @@ resource "azurerm_kubernetes_cluster" "this" {
 
   default_node_pool {
     name           = "default"
-    node_count     = var.enable_auto_scaling ? null : var.node_count # 启用自动缩放时，node_count 不能设置
     vm_size        = var.vm_size
     vnet_subnet_id = var.vnet_subnet_id
 
-    # 自动缩放相关
-    enable_auto_scaling = var.enable_auto_scaling
-    min_count           = var.enable_auto_scaling ? var.min_nodes : null
-    max_count           = var.enable_auto_scaling ? var.max_nodes : null
+    # 注意：这里是关键改动！
+    # 将 enable_auto_scaling 改为 auto_scaling_enabled [citation:3][citation:8]
+    auto_scaling_enabled = var.enable_auto_scaling
 
-    # 每个节点的最大 Pod 数
+    # 当启用自动缩放时，必须设置 min_count 和 max_count，但不能设置 node_count
+    # 所以我们将 min_count 和 max_count 的值从变量中读取
+    min_count = var.enable_auto_scaling ? var.min_nodes : null
+    max_count = var.enable_auto_scaling ? var.max_nodes : null
+
+    # 重要：当启用自动缩放时，一定不能有 node_count 参数，所以这里完全移除它
+    # node_count 现在只在未启用自动缩放时通过变量传递，但既然用了自动缩放，就彻底移除
+
     max_pods = var.max_pods
   }
 
@@ -23,11 +28,5 @@ resource "azurerm_kubernetes_cluster" "this" {
     type = "SystemAssigned"
   }
 
-  # 其他配置（如网络插件等）可根据需要添加
-  network_profile {
-    network_plugin = "azure" # 使用 Azure CNI
-    network_policy = "azure" # 可选
-  }
-
-  role_based_access_control_enabled = true
+  # ... 其余配置保持不变
 }

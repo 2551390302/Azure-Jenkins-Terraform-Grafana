@@ -28,12 +28,6 @@ variable "vnet_subnet_id" {
   type        = string
 }
 
-variable "node_count" {
-  description = "默认节点池的初始节点数（当不启用自动缩放时使用）"
-  type        = number
-  default     = 1
-}
-
 # 自动缩放相关变量
 variable "enable_auto_scaling" {
   description = "是否启用节点池自动缩放"
@@ -42,19 +36,19 @@ variable "enable_auto_scaling" {
 }
 
 variable "min_nodes" {
-  description = "节点池最小节点数（启用自动缩放时生效）"
+  description = "最小节点数"
   type        = number
   default     = 1
 }
 
 variable "max_nodes" {
-  description = "节点池最大节点数（启用自动缩放时生效）"
+  description = "最大节点数"
   type        = number
   default     = 1
 }
 
 variable "max_pods" {
-  description = "每个节点上运行的最大 Pod 数量"
+  description = "每个节点的最大 Pod 数"
   type        = number
   default     = 30
 }

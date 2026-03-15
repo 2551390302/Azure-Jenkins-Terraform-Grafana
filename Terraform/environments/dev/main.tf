@@ -39,8 +39,8 @@ module "aks" {
   # 启用自动缩放
   enable_auto_scaling = true # 允许节点池动态扩缩容
   min_nodes           = 1    # 最小节点数（节省成本）
-  max_nodes           = 3    # 最大节点数（应对突发负载）
+  max_nodes           = 2    # 最大节点数（应对突发负载）
 
   # 限制每个节点的 Pod 数量
-  max_pods = 50 # 每个节点最多运行 50 个 Pod（默认通常为 110，可根据需求降低）
+  max_pods = 50 # 每个节点最多运行 50 个 Pod（默认通常为 30，可根据需求降低）
 }
