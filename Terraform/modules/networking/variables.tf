@@ -40,3 +40,9 @@ variable "aks_subnet_prefix" {
   description = "AKS 子网地址前缀"
   type        = list(string)
 }
+
+variable "tags" {
+  description = "要应用到资源的标签"
+  type        = map(string)
+  default     = {}
+}

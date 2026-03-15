@@ -52,3 +52,9 @@ variable "max_pods" {
   type        = number
   default     = 30
 }
+
+variable "tags" {
+  description = "要应用到资源的标签"
+  type        = map(string)
+  default     = {}
+}
