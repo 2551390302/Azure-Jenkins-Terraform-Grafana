@@ -1,1 +1,1 @@
-
+main_subscription_id = "kk02"
