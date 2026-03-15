@@ -22,11 +22,12 @@ resource "azurerm_kubernetes_cluster" "this" {
     # node_count 现在只在未启用自动缩放时通过变量传递，但既然用了自动缩放，就彻底移除
 
     max_pods = var.max_pods
+
   }
 
   identity {
     type = "SystemAssigned"
   }
 
-  # ... 其余配置保持不变
+  tags = var.tags
 }
