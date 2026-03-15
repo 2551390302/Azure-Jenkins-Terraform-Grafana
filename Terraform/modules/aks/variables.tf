@@ -53,6 +53,12 @@ variable "max_pods" {
   default     = 30
 }
 
+variable "existing_vnet_name" {
+  description = "现有 VNet 名称（当 create_vnet = false 时必填）"
+  type        = string
+  default     = "vnet-kk02-eas-devops01"
+}
+
 variable "tags" {
   description = "要应用到资源的标签"
   type        = map(string)

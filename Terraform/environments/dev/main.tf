@@ -35,7 +35,7 @@ module "networking" {
 
   resource_group_name = "rg-kk02-eas-devops01"
   location            = "eastasia"               # 指定区域
-  vnet_name           = "vnet-kk02-eas-devops01" # 新 VNet 名称
+  existing_vnet_name  = "vnet-kk02-eas-devops01" # 新 VNet 名称
   #  address_space       = ["172.16.0.0/16"]          # VNet 地址空间
   aks_subnet_prefix = ["172.16.1.0/24"] # 子网地址前缀
   create_vnet       = false             # 创建新 VNet
