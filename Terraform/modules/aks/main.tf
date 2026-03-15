@@ -5,9 +5,10 @@ resource "azurerm_kubernetes_cluster" "this" {
   dns_prefix          = var.dns_prefix
 
   default_node_pool {
-    name           = "default"
-    vm_size        = var.vm_size
-    vnet_subnet_id = var.vnet_subnet_id
+    name            = "default"
+    vm_size         = var.vm_size
+    vnet_subnet_id  = var.vnet_subnet_id
+    os_disk_size_gb = var.os_disk_size_gb
 
     # 注意：这里是关键改动！
     # 将 enable_auto_scaling 改为 auto_scaling_enabled [citation:3][citation:8]

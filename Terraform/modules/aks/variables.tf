@@ -70,3 +70,10 @@ variable "zones" {
   type        = list(string)
   default     = null
 }
+
+# 在 modules/aks/variables.tf 中添加
+variable "os_disk_size_gb" {
+  description = "节点 OS 磁盘大小（GB）"
+  type        = number
+  default     = 30
+}
