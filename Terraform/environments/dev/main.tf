@@ -55,7 +55,7 @@ module "aks" {
   kubernetes_version  = "1.33.7"
 
   # 使用最便宜的 VM 大小（B 系列，开发/测试适用）
-  vm_size         = "Standard_DS2_v2"
+  vm_size         = "Standard_A2_v2"
   os_disk_size_gb = 30
 
   # 子网 ID 必须是完整的 Azure 资源 ID，而不是仅 VNet 名称！
