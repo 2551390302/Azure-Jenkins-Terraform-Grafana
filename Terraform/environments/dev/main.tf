@@ -56,7 +56,7 @@ module "aks" {
 
   # 使用最便宜的 VM 大小（B 系列，开发/测试适用）
   vm_size         = "Standard_DS2_v2"
-  os_disk_size_gb = 128
+  os_disk_size_gb = 30
 
   # 子网 ID 必须是完整的 Azure 资源 ID，而不是仅 VNet 名称！
   # 示例：/subscriptions/xxx/resourceGroups/xxx/providers/Microsoft.Network/virtualNetworks/vnet-name/subnets/subnet-name
