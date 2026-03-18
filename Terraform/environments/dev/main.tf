@@ -103,47 +103,47 @@ module "aks" {
 }
 
 # 创建 monitoring 命名空间
-  resource "kubernetes_namespace" "monitoring" {
-    metadata {
-      name = "nsp-d-devops01-monitoring"
-    }
-
-    # 确保 AKS 集群已准备就绪后再创建
-    depends_on = [
-      module.aks
-    ]
+resource "kubernetes_namespace" "monitoring" {
+  metadata {
+    name = "nsp-d-devops01-monitoring"
   }
 
-  # 使用 Helm 部署 kube-prometheus-stack
-  resource "helm_release" "prometheus_stack" {
-    name       = "prometheus"
-    repository = "https://prometheus-community.github.io/helm-charts"
-    chart      = "kube-prometheus-stack"
-    namespace  = kubernetes_namespace.monitoring.metadata[0].name
+  # 确保 AKS 集群已准备就绪后再创建
+  depends_on = [
+    module.aks
+  ]
+}
 
-    # 可选：自定义 values，例如设置 Grafana 密码、持久化等
-    # set {
-    #   name  = "grafana.adminPassword"
-    #   value = "your-secure-password"
-    # }
+# 使用 Helm 部署 kube-prometheus-stack
+resource "helm_release" "prometheus_stack" {
+  name       = "prometheus"
+  repository = "https://prometheus-community.github.io/helm-charts"
+  chart      = "kube-prometheus-stack"
+  namespace  = kubernetes_namespace.monitoring.metadata[0].name
 
-    # 可以在这里添加更多自定义配置，例如指定存储类
-    # values = [
-    #   <<-EOT
-    #   prometheus:
-    #     prometheusSpec:
-    #       storageSpec:
-    #         volumeClaimTemplate:
-    #           spec:
-    #             storageClassName: managed-premium
-    #             accessModes: ["ReadWriteOnce"]
-    #             resources:
-    #               requests:
-    #                 storage: 50Gi
-    #   EOT
-    # ]
+  # 可选：自定义 values，例如设置 Grafana 密码、持久化等
+  # set {
+  #   name  = "grafana.adminPassword"
+  #   value = "your-secure-password"
+  # }
 
-    depends_on = [
-      kubernetes_namespace.monitoring
-    ]
-  }
+  # 可以在这里添加更多自定义配置，例如指定存储类
+  # values = [
+  #   <<-EOT
+  #   prometheus:
+  #     prometheusSpec:
+  #       storageSpec:
+  #         volumeClaimTemplate:
+  #           spec:
+  #             storageClassName: managed-premium
+  #             accessModes: ["ReadWriteOnce"]
+  #             resources:
+  #               requests:
+  #                 storage: 50Gi
+  #   EOT
+  # ]
+
+  depends_on = [
+    kubernetes_namespace.monitoring
+  ]
+}
