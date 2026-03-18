@@ -100,12 +100,12 @@ module "aks" {
   tags = merge(local.common_tags, {
     ServerOwner = "Kerwin Li"
   })
+}
 
-
-  # 创建 monitoring 命名空间
+# 创建 monitoring 命名空间
   resource "kubernetes_namespace" "monitoring" {
     metadata {
-      name = "monitoring"
+      name = "nsp-d-devops01-monitoring"
     }
 
     # 确保 AKS 集群已准备就绪后再创建
@@ -147,4 +147,3 @@ module "aks" {
       kubernetes_namespace.monitoring
     ]
   }
-}
