@@ -8,6 +8,18 @@ terraform {
       source  = "hashicorp/time"
       version = "~> 0.9"
     }
+
+    # 新增 Kubernetes provider
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.23"
+    }
+    # 新增 Helm provider
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.12"
+    }
+
   }
 }
 
@@ -15,6 +27,19 @@ provider "azurerm" {
   features {}
   subscription_id = var.main_subscription_id
 }
+
+# 配置 Kubernetes provider（使用本地 kubeconfig）
+provider "kubernetes" {
+  config_path = "~/.kube/config" # 使用默认路径，如果你修改过请相应调整
+}
+
+# 配置 Helm provider（复用 Kubernetes provider 的连接）
+provider "helm" {
+  kubernetes {
+    config_path = "~/.kube/config"
+  }
+}
+
 
 # 固定时间资源
 resource "time_static" "this" {} # 新增资源
@@ -75,4 +100,51 @@ module "aks" {
   tags = merge(local.common_tags, {
     ServerOwner = "Kerwin Li"
   })
+
+
+  # 创建 monitoring 命名空间
+  resource "kubernetes_namespace" "monitoring" {
+    metadata {
+      name = "monitoring"
+    }
+
+    # 确保 AKS 集群已准备就绪后再创建
+    depends_on = [
+      module.aks
+    ]
+  }
+
+  # 使用 Helm 部署 kube-prometheus-stack
+  resource "helm_release" "prometheus_stack" {
+    name       = "prometheus"
+    repository = "https://prometheus-community.github.io/helm-charts"
+    chart      = "kube-prometheus-stack"
+    namespace  = kubernetes_namespace.monitoring.metadata[0].name
+
+    # 可选：自定义 values，例如设置 Grafana 密码、持久化等
+    # set {
+    #   name  = "grafana.adminPassword"
+    #   value = "your-secure-password"
+    # }
+
+    # 可以在这里添加更多自定义配置，例如指定存储类
+    # values = [
+    #   <<-EOT
+    #   prometheus:
+    #     prometheusSpec:
+    #       storageSpec:
+    #         volumeClaimTemplate:
+    #           spec:
+    #             storageClassName: managed-premium
+    #             accessModes: ["ReadWriteOnce"]
+    #             resources:
+    #               requests:
+    #                 storage: 50Gi
+    #   EOT
+    # ]
+
+    depends_on = [
+      kubernetes_namespace.monitoring
+    ]
+  }
 }
