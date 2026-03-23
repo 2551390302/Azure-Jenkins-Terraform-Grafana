@@ -121,29 +121,88 @@ resource "helm_release" "prometheus_stack" {
   chart      = "kube-prometheus-stack"
   namespace  = kubernetes_namespace.monitoring.metadata[0].name
 
+  values = [
+    <<-EOT
+    prometheus:
+      prometheusSpec:
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: managed-premium   # Azure 托管磁盘类型
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 50Gi
+      grafana:
+        persistence:
+          enabled: true
+          storageClassName: managed-premium
+          accessModes:
+            - ReadWriteOnce
+          size: 10Gi
+      alertmanager:
+        alertmanagerSpec:
+          replicas: 2
+
+    EOT
+  ]
+
+
+
+  set {
+    name  = "grafana.service.type"
+    value = "LoadBalancer"
+  }
+
   # 可选：自定义 values，例如设置 Grafana 密码、持久化等
   # set {
   #   name  = "grafana.adminPassword"
   #   value = "your-secure-password"
   # }
 
-  # 可以在这里添加更多自定义配置，例如指定存储类
-  # values = [
-  #   <<-EOT
-  #   prometheus:
-  #     prometheusSpec:
-  #       storageSpec:
-  #         volumeClaimTemplate:
-  #           spec:
-  #             storageClassName: managed-premium
-  #             accessModes: ["ReadWriteOnce"]
-  #             resources:
-  #               requests:
-  #                 storage: 50Gi
-  #   EOT
-  # ]
-
   depends_on = [
     kubernetes_namespace.monitoring
+  ]
+}
+
+resource "kubernetes_ingress_v1" "grafana" {
+  metadata {
+    name      = "grafana-ingress"
+    namespace = kubernetes_namespace.monitoring.metadata[0].name
+    annotations = {
+      "nginx.ingress.kubernetes.io/rewrite-target" = "/"
+      "cert-manager.io/cluster-issuer"             = "letsencrypt-prod"
+    }
+  }
+
+  spec {
+    ingress_class_name = "nginx"
+
+    tls {
+      hosts       = ["grafana.devops01.com"] # 替换为实际域名
+      secret_name = "grafana-tls"
+    }
+
+    rule {
+      host = "grafana.devops01.com"
+      http {
+        path {
+          path      = "/"
+          path_type = "Prefix"
+          backend {
+            service {
+              name = "prometheus-grafana"
+              port {
+                number = 80
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  depends_on = [
+    helm_release.prometheus_stack
   ]
 }
