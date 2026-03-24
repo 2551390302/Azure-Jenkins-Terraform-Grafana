@@ -206,3 +206,21 @@ resource "kubernetes_ingress_v1" "grafana" {
     helm_release.prometheus_stack
   ]
 }
+
+# ACR 资源
+resource "azurerm_container_registry" "acr" {
+  name                = "acrdevops01${random_string.suffix.result}" # 全局唯一名称
+  resource_group_name = local.resource_group_name
+  location            = "eastasia"
+  sku                 = "Basic" # 开发测试用 Basic 即可，生产用 Standard 或 Premium
+  admin_enabled       = true    # 开启 admin 用户，方便 Jenkins 使用用户名/密码登录
+
+  tags = local.common_tags
+}
+
+resource "random_string" "suffix" {
+  length  = 6
+  special = false
+  upper   = false
+}
+

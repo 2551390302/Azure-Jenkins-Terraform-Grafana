@@ -1,22 +1,20 @@
 # Azure Container Registry Demo Application
 
-这是一个简单的Spring Boot应用，用于演示如何构建并部署到Azure Container Registry。
+这是一个简单的 Spring Boot 应用，用于演示如何构建并部署到 Azure Container Registry。
 
 ## 项目结构
 
+对于你当前的情况（本地 Jenkins + 服务主体 + 远程后端），我推荐采用 **环境目录隔离 + 模块化** 的方式：
 
-
-对于你当前的情况（本地 Jenkins + 服务主体 + 远程后端），我推荐采用 环境目录隔离 + 模块化 的方式：
-
-创建 modules/ 目录，将网络、AKS、数据库等抽象为模块。
-
-在 environments/ 下建立 dev、staging、prod 子目录。
-
-每个子目录有自己的 main.tf（调用模块）、terraform.tfvars 和 backend.tf（不同 key）。
-
-Jenkins Pipeline 通过参数化选择环境目录，执行 Terraform。
+1. 创建 `modules/` 目录，将网络、AKS、数据库等抽象为模块。
+2. 在 `environments/` 下建立 `dev`、`staging`、`prod` 子目录。
+3. 每个子目录有自己的 `main.tf`（调用模块）、`terraform.tfvars` 和 `backend.tf`（不同 key）。
+4. Jenkins Pipeline 通过参数化选择环境目录，执行 Terraform。
 
 这种方式清晰、易于扩展，且状态文件按环境自然隔离，既避免了单个状态文件过大，也防止了跨环境误操作。
+
+### 目录结构
+
 
 terraform/
 ├── modules/                               # 可复用的模块目录
@@ -44,3 +42,11 @@ terraform/
 ├── README.md                               # 项目说明
 └── global/                                  # （可选）全局资源（如监控、日志）
 └── ...
+
+## prometheus实施顺序建议
+1. 先做持久化：避免后续操作丢失数据。
+2. 暴露 Grafana 并配置 HTTPS：便于访问。
+3. 添加自定义告警：开始产生价值。
+4. 逐步引入 ServiceMonitor：监控业务应用。
+5. 最后考虑日志和追踪：根据需求决定。
+6. 所有 Terraform 修改都需执行 terraform apply 生效
