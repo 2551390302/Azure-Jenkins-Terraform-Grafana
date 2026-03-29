@@ -148,5 +148,5 @@
 请确保代码通过 `terraform fmt` 和 `terraform validate`。
 关于app部分放在了另一个仓库，需要可以联系我。
 
-**项目地址**：https://github.com/yourname/devops-demo  
+**项目地址**：https://github.com/2551390302/Azure-Jenkins-Terraform-Grafana
 **联系方式**：2551390302@qq.com
