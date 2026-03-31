@@ -136,9 +136,8 @@
    - Grafana: `http://<grafana-lb-ip>`
    - Prometheus: `http://prometheus.<ingress-ip>.nip.io`
 
-## 📊 监控效果截图（示例）
+## 📊 监控效果（示例）
 
-> 由于无法直接嵌入图片，以下为文字描述：
 > - Grafana 仪表盘展示 JVM 内存使用率、CPU 使用率、HTTP 请求速率
 > - Prometheus Targets 页面显示 `demo-app` 状态为 `UP`
 > - Alertmanager 中配置了 Pod 重启告警
