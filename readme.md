@@ -1,52 +1,152 @@
-# Azure Container Registry Demo Application
+# 项目描述：Azure DevOps - 基础设施即代码 + 应用部署 + 可观测性
 
-这是一个简单的 Spring Boot 应用，用于演示如何构建并部署到 Azure Container Registry。
+## 📖 项目概述
 
-## 项目结构
+本项目展示了如何使用 **Jenkins + GitHub + Terraform** 在 **Azure** 上实现端到端的自动化运维。从创建 AKS 集群，到部署监控系统（Prometheus + Grafana），再到自动构建和部署 Spring Boot 应用，并实现应用指标的可观测性。所有配置均通过代码管理，符合 GitOps 和 IaC 最佳实践。
 
-对于你当前的情况（本地 Jenkins + 服务主体 + 远程后端），我推荐采用 **环境目录隔离 + 模块化** 的方式：
+### 🎯 核心目标
+- 自动化创建 AKS 集群（包括 VNet、子网）
+- 部署 Prometheus + Grafana 监控栈
+- 构建并推送 Spring Boot 应用到 ACR
+- 通过 ServiceMonitor 暴露应用指标
+- 配置 Ingress 安全暴露监控 UI
+- 通过 Jenkins Pipeline 实现 CI/CD 全流程
 
-1. 创建 `modules/` 目录，将网络、AKS、数据库等抽象为模块。
-2. 在 `environments/` 下建立 `dev`、`staging`、`prod` 子目录。
-3. 每个子目录有自己的 `main.tf`（调用模块）、`terraform.tfvars` 和 `backend.tf`（不同 key）。
-4. Jenkins Pipeline 通过参数化选择环境目录，执行 Terraform。
+## 🧱 架构图
 
-这种方式清晰、易于扩展，且状态文件按环境自然隔离，既避免了单个状态文件过大，也防止了跨环境误操作。
+```
+┌─────────────┐      ┌─────────────┐      ┌─────────────────────────┐
+│   GitHub    │─────▶│   Jenkins   │─────▶│      Terraform          │
+│ (代码仓库)  │      │ (CI/CD)     │      │ (基础设施即代码)         │
+└─────────────┘      └─────────────┘      └───────────┬─────────────┘
+                                                       │
+                                                       ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                         Azure 资源组                             │
+│  ┌──────────┐   ┌──────────────┐   ┌──────────────────────┐    │
+│  │   VNet   │   │    AKS       │   │          ACR         │    │
+│  │ + Subnet │   │  集群        │   │   (容器镜像仓库)      │    │
+│  └──────────┘   └──────┬───────┘   └──────────────────────┘    │
+│                         │                                        │
+│                         ▼                                        │
+│              ┌─────────────────────┐                            │
+│              │  kube-prometheus    │                            │
+│              │  - Prometheus       │                            │
+│              │  - Grafana          │                            │
+│              │  - Alertmanager     │                            │
+│              └─────────┬───────────┘                            │
+│                        │                                         │
+│                        ▼                                         │
+│              ┌─────────────────────┐                            │
+│              │   Spring Boot App   │                            │
+│              │   + ServiceMonitor  │                            │
+│              └─────────────────────┘                            │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-### 目录结构
+## 🚀 主要功能
 
+### 1. 基础设施自动化
+- 使用 Terraform 管理 Azure 资源（资源组、VNet、子网、AKS 集群）
+- 远程状态存储于 Azure Storage Account（带锁机制）
+- 环境隔离：`dev` / `staging` / `prod` 目录
 
-terraform/
-├── modules/                               # 可复用的模块目录
-│   ├── networking/                         # 网络模块
-│   │   ├── main.tf                         # 定义 VNet、子网等
-│   │   ├── variables.tf                     # 输入变量（如地址空间）
-│   │   └── outputs.tf                       # 输出（如子网 ID）
-│   ├── aks/                                # AKS 模块
-│   │   ├── main.tf                         # 定义 AKS 集群
-│   │   ├── variables.tf                     # 输入变量（如节点数、版本）
-│   │   └── outputs.tf                       # 输出（kubeconfig、集群 ID）
-│   ├── ...                                  # 其他模块（如数据库、存储）
-├── environments/                           # 环境配置目录
-│   ├── dev/                                 # 开发环境
-│   │   ├── main.tf                          # 调用模块，配置 dev 资源
-│   │   ├── variables.tf                      # （可选）环境特有变量
-│   │   ├── terraform.tfvars                   # 变量赋值（如环境名称、节点数）
-│   │   ├── backend.tf                         # 后端配置（指向 dev 状态文件）
-│   │   └── outputs.tf                         # （可选）环境输出
-│   ├── staging/                              # 预发布环境（结构与 dev 相同）
-│   │   └── ...
-│   ├── prod/                                 # 生产环境
-│   │   └── ...
-├── .gitignore                              # 忽略敏感文件和临时文件
-├── README.md                               # 项目说明
-└── global/                                  # （可选）全局资源（如监控、日志）
-└── ...
+### 2. CI/CD 流水线
+- Jenkins Pipeline 从 GitHub 拉取代码
+- Maven 构建 Spring Boot 应用
+- 使用 `az acr build` 在云端构建并推送镜像到 ACR
+- 动态获取 AKS 凭证并部署应用
 
-## prometheus实施顺序建议
-1. 先做持久化：避免后续操作丢失数据。
-2. 暴露 Grafana 并配置 HTTPS：便于访问。
-3. 添加自定义告警：开始产生价值。
-4. 逐步引入 ServiceMonitor：监控业务应用。
-5. 最后考虑日志和追踪：根据需求决定。
-6. 所有 Terraform 修改都需执行 terraform apply 生效
+### 3. 可观测性
+- 通过 Helm 部署 `kube-prometheus-stack`（Prometheus + Grafana）
+- 持久化存储（Premium SSD）保留监控数据
+- ServiceMonitor 自动发现应用指标端点
+- 通过 Ingress + Let's Encrypt 安全暴露 Grafana 和 Prometheus
+
+### 4. 应用监控
+- Spring Boot 应用暴露 `/actuator/prometheus` 端点
+- 自定义 PromQL 查询和 Grafana 仪表盘
+- 告警规则配置（Alertmanager）
+
+## 🛠️ 技术栈
+
+| 类别          | 工具/平台                          |
+|---------------|------------------------------------|
+| 云平台        | Microsoft Azure                    |
+| 基础设施编排  | Terraform                          |
+| CI/CD         | Jenkins                            |
+| 代码仓库      | GitHub                             |
+| 容器镜像仓库  | Azure Container Registry (ACR)     |
+| 容器编排      | Azure Kubernetes Service (AKS)     |
+| 监控          | Prometheus + Grafana               |
+| 应用框架      | Spring Boot (Java)                 |
+| 构建工具      | Maven                              |
+| 脚本语言      | Groovy (Jenkinsfile), Bash         |
+
+## 📁 项目结构
+
+```
+.
+├── Jenkinsfile                     # 流水线定义
+├── Terraform/
+│   ├── environments/
+│   │   ├── dev/
+│   │   │   ├── main.tf             # 根模块（网络、AKS、监控）
+│   │   │   ├── variables.tf
+│   │   │   ├── terraform.tfvars
+│   │   │   └── backend.tf
+│   │   ├── staging/
+│   │   └── prod/
+│   └── modules/
+│       ├── networking/             # VNet & 子网模块
+│       └── aks/                    # AKS 集群模块
+├── k8s/
+│   ├── deployment.yaml             # 应用 Deployment & Service
+│   └── servicemonitor.yaml         # Prometheus ServiceMonitor
+└── src/                            # Spring Boot 应用源码
+```
+
+## 🔧 快速部署（开发者本地）
+
+1. **克隆仓库**
+   ```bash
+   git clone https://github.com/yourname/devops-demo.git
+   cd devops-demo
+   ```
+
+2. **配置 Azure 凭据**（服务主体）
+   - 在 Jenkins 中添加凭据：`azure-client-id`, `azure-client-secret`, `azure-tenant-id`, `azure-subscription-id`
+
+3. **修改环境变量**（`Terraform/environments/dev/terraform.tfvars`）
+   ```hcl
+   main_subscription_id = "your-sub-id"
+   ```
+
+4. **运行 Terraform 创建 AKS**
+   ```bash
+   cd Terraform/environments/dev
+   terraform init
+   terraform apply
+   ```
+
+5. **触发 Jenkins Pipeline**（或本地模拟）
+   - Jenkins 会自动完成：构建应用 → 推送到 ACR → 部署到 AKS
+
+6. **访问监控 UI**
+   - Grafana: `http://<grafana-lb-ip>`
+   - Prometheus: `http://prometheus.<ingress-ip>.nip.io`
+
+## 📊 监控效果截图（示例）
+
+> 由于无法直接嵌入图片，以下为文字描述：
+> - Grafana 仪表盘展示 JVM 内存使用率、CPU 使用率、HTTP 请求速率
+> - Prometheus Targets 页面显示 `demo-app` 状态为 `UP`
+> - Alertmanager 中配置了 Pod 重启告警
+
+## 注意
+
+请确保代码通过 `terraform fmt` 和 `terraform validate`。
+关于app部分放在了另一个仓库，需要可以联系我。
+
+**项目地址**：https://github.com/yourname/devops-demo  
+**联系方式**：2551390302@qq.com
