@@ -68,6 +68,11 @@
 - 自定义 PromQL 查询和 Grafana 仪表盘
 - 告警规则配置（Alertmanager）
 
+### 5. 告警集成 - 飞书
+- 通过 Prometheus Alertmanager 将告警实时推送到飞书群
+- 敏感 Webhook 地址通过 Jenkins 凭据管理，Terraform 变量标记为 `sensitive`，确保安全
+- 支持告警分组、静默和恢复通知
+
 ## 🛠️ 技术栈
 
 | 类别          | 工具/平台                          |
