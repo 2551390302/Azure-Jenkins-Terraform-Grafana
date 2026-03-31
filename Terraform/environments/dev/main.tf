@@ -117,7 +117,7 @@ resource "kubernetes_namespace" "monitoring" {
 # 使用 Helm 部署 kube-prometheus-stack
 resource "helm_release" "prometheus_stack" {
   name       = "prometheus"
-  repository = "http://mirror.azure.cn/kubernetes/helm"
+  repository = "https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts"
   chart      = "kube-prometheus-stack"
   namespace  = kubernetes_namespace.monitoring.metadata[0].name
 
