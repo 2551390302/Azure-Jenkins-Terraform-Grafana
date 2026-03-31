@@ -17,9 +17,13 @@ pipeline {
         ARM_TENANT_ID       = credentials('azure-tenant-id')
         // 存储账户访问密钥（用于后端）
         ARM_ACCESS_KEY      = credentials('azure-sa-access-key')
-
         // 可选：如果模块需要订阅 ID 变量，可以通过 TF_VAR_ 注入
         TF_VAR_main_subscription_id = "${ARM_SUBSCRIPTION_ID}"
+
+        // 添加飞书 Webhook 凭据，注入为 Terraform 变量
+        FEISHU_WEBHOOK      = credentials('feishu-webhook-url')
+        TF_VAR_feishu_webhook_url = "${FEISHU_WEBHOOK}"
+
     }
 
     stages {

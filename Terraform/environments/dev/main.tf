@@ -143,7 +143,20 @@ resource "helm_release" "prometheus_stack" {
       alertmanager:
         alertmanagerSpec:
           replicas: 2
-
+        config:
+          global:
+            resolve_timeout: 5m
+          route:
+            group_by: ['alertname']
+            group_wait: 10s
+            group_interval: 10s
+            repeat_interval: 12h
+            receiver: 'feishu-webhook'
+          receivers:
+          - name: 'feishu-webhook'
+            webhook_configs:
+            - url: ${var.feishu_webhook_url}
+              send_resolved: true
     EOT
   ]
 
