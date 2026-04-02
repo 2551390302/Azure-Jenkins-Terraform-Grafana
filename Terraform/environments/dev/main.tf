@@ -123,44 +123,42 @@ resource "helm_release" "prometheus_stack" {
 
   values = [
     <<-EOT
-    prometheus:
-      prometheusSpec:
-        storageSpec:
-          volumeClaimTemplate:
-            spec:
-              storageClassName: managed-premium   # Azure 托管磁盘类型
-              accessModes: ["ReadWriteOnce"]
-              resources:
-                requests:
-                  storage: 50Gi
-      grafana:
-        persistence:
-          enabled: true
-          storageClassName: managed-premium
-          accessModes:
-            - ReadWriteOnce
-          size: 10Gi
-      alertmanager:
-        alertmanagerSpec:
-          replicas: 2
-        config:
-          global:
-            resolve_timeout: 5m
-          route:
-            group_by: ['alertname']
-            group_wait: 10s
-            group_interval: 10s
-            repeat_interval: 12h
-            receiver: 'feishu-webhook'
-          receivers:
-          - name: 'feishu-webhook'
-            webhook_configs:
-            - url: ${var.feishu_webhook_url}
-              send_resolved: true
-    EOT
+  prometheus:
+    prometheusSpec:
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: managed-premium
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 50Gi
+  grafana:
+    persistence:
+      enabled: true
+      storageClassName: managed-premium
+      accessModes:
+        - ReadWriteOnce
+      size: 10Gi
+  alertmanager:
+    alertmanagerSpec:
+      replicas: 2
+    config:
+      global:
+        resolve_timeout: 5m
+      route:
+        group_by: ['alertname']
+        group_wait: 10s
+        group_interval: 10s
+        repeat_interval: 12h
+        receiver: 'feishu-webhook'
+      receivers:
+      - name: 'feishu-webhook'
+        webhook_configs:
+        - url: ${var.feishu_webhook_url}
+          send_resolved: true
+  EOT
   ]
-
-
 
   set {
     name  = "grafana.service.type"
