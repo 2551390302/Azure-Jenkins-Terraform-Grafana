@@ -90,7 +90,23 @@ pipeline {
                 input message: "是否批准将计划应用到生产环境？请确认变更。", ok: '批准'
             }
         }
-
+        stage('Clean Helm Pending') {
+            steps {
+                script {
+                    dir("Terraform/environments/${params.ENVIRONMENT}") {
+                        sh '''
+                            # 检查 release 状态
+                            if helm ls -n nsp-d-devops01-monitoring | grep prometheus | grep -E 'pending|failed'; then
+                                echo "Found pending/failed release, trying to rollback..."
+                                helm rollback prometheus 1 -n nsp-d-devops01-monitoring || true
+                                # 如果回滚失败，卸载并重新安装（注意：会删除 deployment，但 PVC 可能保留）
+                                # 为了安全，先手动检查
+                            fi
+                        '''
+                    }
+                }
+            }
+        }
         stage('Terraform Apply') {
             steps {
                 dir("Terraform/environments/${params.ENVIRONMENT}") {
