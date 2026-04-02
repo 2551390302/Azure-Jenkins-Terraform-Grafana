@@ -36,7 +36,7 @@ pipeline {
             }
         }
 
-        stage('switch to ${params.ENVIRONMENT} env folder') {
+        stage('switch to relevant env folder') {
             steps {
                 script {
                     // 根据参数切换到 environments/${ENVIRONMENT}
