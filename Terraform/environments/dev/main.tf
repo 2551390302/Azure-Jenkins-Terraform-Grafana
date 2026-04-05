@@ -120,6 +120,8 @@ resource "helm_release" "prometheus_stack" {
   repository = "https://prometheus-community.github.io/helm-charts"
   chart      = "kube-prometheus-stack"
   namespace  = kubernetes_namespace.monitoring.metadata[0].name
+  timeout    = 600
+  atomic     = true
 
   values = [
     <<-EOT
@@ -155,7 +157,7 @@ resource "helm_release" "prometheus_stack" {
       receivers:
       - name: 'feishu-webhook'
         webhook_configs:
-        - url: ${var.feishu_webhook_url}
+        - url: 'https://open.feishu.cn/open-apis/bot/v2/hook/5aef8721-3f93-4b63-adf7-bbffb8cbf271'
           send_resolved: true
   EOT
   ]
